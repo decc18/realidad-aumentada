@@ -327,6 +327,13 @@ function showMarkerAR() {
     }
 }
 
+function showProductAR() {
+    app.showScreen('product-ar-screen');
+    if (typeof initProductAR === 'function') {
+        initProductAR();
+    }
+}
+
 function showMarkerlessAR() {
     app.showScreen('markerless-ar-screen');
     if (typeof initMarkerlessAR === 'function') {
@@ -343,6 +350,13 @@ function showLocationAR() {
 
 function showAbout() {
     app.showScreen('about-screen');
+}
+
+function toggleHints() {
+    const hints = document.querySelector('.product-hints');
+    if (hints) {
+        hints.style.display = hints.style.display === 'none' ? 'block' : 'none';
+    }
 }
 
 function hideAllScreens() {

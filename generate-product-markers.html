@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generador de Marcador para Ducha Premium</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .product-info {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        
+        .marker-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .marker-item {
+            text-align: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        canvas {
+            border: 3px solid #2196F3;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        canvas:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .qr-info {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="product-info">
+            <h1>🚿 Generador de Marcador AR</h1>
+            <h2>Ducha de Mano Premium Spa</h2>
+            <p>Crea marcadores personalizados para mostrar información del producto en AR</p>
+        </div>
+        
+        <button onclick="generateMarkers()">🎯 Generar Marcadores AR</button>
+        <button onclick="generateQRCode()">📱 Generar Código QR</button>
+        
+        <div class="marker-container" id="markerContainer"></div>
+        
+        <div class="instructions">
+            <h3>📋 Instrucciones de Uso:</h3>
+            <ol>
+                <li><strong>Generar Marcadores:</strong> Haz clic en "Generar Marcadores AR" para crear los patrones</li>
+                <li><strong>Descargar:</strong> Haz clic en cada marcador para descargarlo</li>
+                <li><strong>Imprimir:</strong> Imprime los marcadores en papel blanco, tamaño recomendado: 5x5 cm o más</li>
+                <li><strong>Colocar:</strong> Pega el marcador cerca del producto físico</li>
+                <li><strong>Escanear:</strong> Abre la app AR PWA y apunta la cámara hacia el marcador</li>
+            </ol>
+            
+            <div class="qr-info">
+                <strong>💡 Tip:</strong> Para mejores resultados, coloca el marcador en una superficie plana 
+                y asegúrate de que esté bien iluminado cuando lo escanees.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateMarkers() {
+            const container = document.getElementById('markerContainer');
+            container.innerHTML = '';
+
+            // Generar diferentes tipos de marcadores
+            const markers = [
+                {
+                    name: 'Marcador Principal - Ducha Premium',
+                    type: 'main',
+                    size: 200,
+                    fileName: 'ducha-premium-marker.png'
+                },
+                {
+                    name: 'Marcador Compacto',
+                    type: 'compact',
+                    size: 150,
+                    fileName: 'ducha-premium-compact.png'
+                },
+                {
+                    name: 'Marcador con Logo',
+                    type: 'logo',
+                    size: 200,
+                    fileName: 'ducha-premium-logo.png'
+                }
+            ];
+
+            markers.forEach(marker => {
+                const markerItem = document.createElement('div');
+                markerItem.className = 'marker-item';
+
+                const canvas = createMarker(marker.size, marker.type);
+                canvas.title = `Haz clic para descargar: ${marker.fileName}`;
+                canvas.addEventListener('click', () => {
+                    downloadCanvas(canvas, marker.fileName);
+                });
+
+                const label = document.createElement('div');
+                label.innerHTML = `
+                    <h4>${marker.name}</h4>
+                    <p>${marker.size}x${marker.size}px</p>
+                    <small>Clic para descargar</small>
+                `;
+
+                markerItem.appendChild(canvas);
+                markerItem.appendChild(label);
+                container.appendChild(markerItem);
+            });
+
+            showSuccessMessage('¡Marcadores generados! Haz clic en cada uno para descargar');
+        }
+
+        function createMarker(size, type) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            // Fondo blanco
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            // Borde negro grueso (requerido para AR.js)
+            const borderWidth = Math.max(8, size * 0.04);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, borderWidth);
+            ctx.fillRect(0, 0, borderWidth, size);
+            ctx.fillRect(size - borderWidth, 0, borderWidth, size);
+            ctx.fillRect(0, size - borderWidth, size, borderWidth);
+
+            // Área interior
+            const innerSize = size - (borderWidth * 2);
+            const innerX = borderWidth;
+            const innerY = borderWidth;
+
+            if (type === 'main') {
+                drawMainMarker(ctx, innerX, innerY, innerSize);
+            } else if (type === 'compact') {
+                drawCompactMarker(ctx, innerX, innerY, innerSize);
+            } else if (type === 'logo') {
+                drawLogoMarker(ctx, innerX, innerY, innerSize);
+            }
+
+            return canvas;
+        }
+
+        function drawMainMarker(ctx, x, y, size) {
+            // Patrón específico para la ducha
+            const centerX = x + size / 2;
+            const centerY = y + size / 2;
+
+            // Círculo central (cabezal de ducha)
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.15, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Mango de la ducha
+            const handleWidth = size * 0.08;
+            const handleHeight = size * 0.4;
+            ctx.fillRect(centerX - handleWidth/2, centerY + size * 0.1, handleWidth, handleHeight);
+
+            // Detalles del cabezal
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = size * 0.08;
+                const dotX = centerX + Math.cos(angle) * radius;
+                const dotY = centerY + Math.sin(angle) * radius;
+                
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, size * 0.01, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Esquinas de referencia para AR
+            const cornerSize = size * 0.1;
+            ctx.fillStyle = '#000000';
+            
+            // Esquina superior izquierda
+            ctx.fillRect(x + size * 0.1, y + size * 0.1, cornerSize, cornerSize * 0.3);
+            ctx.fillRect(x + size * 0.1, y + size * 0.1, cornerSize * 0.3, cornerSize);
+
+            // Esquina inferior derecha
+            ctx.fillRect(x + size * 0.8, y + size * 0.8, cornerSize, cornerSize * 0.3);
+            ctx.fillRect(x + size * 0.8, y + size * 0.8, cornerSize * 0.3, cornerSize);
+        }
+
+        function drawCompactMarker(ctx, x, y, size) {
+            // Patrón más simple para espacios pequeños
+            const centerX = x + size / 2;
+            const centerY = y + size / 2;
+
+            // Cruz central
+            ctx.fillStyle = '#000000';
+            const crossWidth = size * 0.1;
+            const crossLength = size * 0.5;
+            
+            ctx.fillRect(centerX - crossWidth/2, centerY - crossLength/2, crossWidth, crossLength);
+            ctx.fillRect(centerX - crossLength/2, centerY - crossWidth/2, crossLength, crossWidth);
+
+            // Círculos en las esquinas
+            const circleRadius = size * 0.05;
+            const offset = size * 0.2;
+            
+            [[x + offset, y + offset],
+             [x + size - offset, y + offset],
+             [x + offset, y + size - offset],
+             [x + size - offset, y + size - offset]].forEach(([cx, cy]) => {
+                ctx.beginPath();
+                ctx.arc(cx, cy, circleRadius, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        function drawLogoMarker(ctx, x, y, size) {
+            // Marcador con representación de la marca
+            const centerX = x + size / 2;
+            const centerY = y + size / 2;
+
+            // Marco decorativo
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x + size * 0.1, y + size * 0.1, size * 0.8, size * 0.8);
+
+            // Texto "PREMIUM"
+            ctx.fillStyle = '#000000';
+            ctx.font = `bold ${size * 0.06}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('PREMIUM', centerX, y + size * 0.2);
+
+            // Icono de ducha estilizado
+            ctx.fillStyle = '#000000';
+            // Cabezal
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - size * 0.1, size * 0.12, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Mango
+            ctx.fillRect(centerX - size * 0.03, centerY, size * 0.06, size * 0.25);
+
+            // Gotas de agua
+            ctx.fillStyle = '#666666';
+            for (let i = 0; i < 5; i++) {
+                const dropX = centerX + (i - 2) * size * 0.04;
+                const dropY = centerY + size * 0.35 + Math.random() * size * 0.1;
+                
+                ctx.beginPath();
+                ctx.arc(dropX, dropY, size * 0.015, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            // Texto inferior
+            ctx.fillStyle = '#000000';
+            ctx.font = `${size * 0.04}px Arial`;
+            ctx.fillText('SPA EDITION', centerX, y + size * 0.85);
+        }
+
+        function generateQRCode() {
+            const container = document.getElementById('markerContainer');
+            const qrItem = document.createElement('div');
+            qrItem.className = 'marker-item';
+
+            // Crear código QR simple (en una implementación real usarías una librería como qrcode.js)
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+
+            // Simular patrón QR
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 200, 200);
+
+            ctx.fillStyle = '#000000';
+            
+            // Crear patrón similar a QR
+            const cellSize = 10;
+            for (let x = 0; x < 20; x++) {
+                for (let y = 0; y < 20; y++) {
+                    if (Math.random() > 0.5) {
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+
+            // Esquinas de referencia QR
+            drawQRCorner(ctx, 0, 0);
+            drawQRCorner(ctx, 140, 0);
+            drawQRCorner(ctx, 0, 140);
+
+            canvas.title = 'Código QR - Clic para descargar';
+            canvas.addEventListener('click', () => {
+                downloadCanvas(canvas, 'ducha-premium-qr.png');
+            });
+
+            const label = document.createElement('div');
+            label.innerHTML = `
+                <h4>Código QR</h4>
+                <p>Enlace directo a la app</p>
+                <small>Clic para descargar</small>
+            `;
+
+            qrItem.appendChild(canvas);
+            qrItem.appendChild(label);
+            container.appendChild(qrItem);
+        }
+
+        function drawQRCorner(ctx, x, y) {
+            // Patrón de esquina típico de QR
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x, y, 60, 60);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(x + 10, y + 10, 40, 40);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x + 20, y + 20, 20, 20);
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function showSuccessMessage(message) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 1000;
+                font-weight: bold;
+            `;
+            msgDiv.textContent = message;
+            
+            document.body.appendChild(msgDiv);
+            
+            setTimeout(() => {
+                msgDiv.remove();
+            }, 4000);
+        }
+
+        // Generar marcadores automáticamente al cargar
+        window.addEventListener('load', () => {
+            setTimeout(generateMarkers, 500);
+        });
+    </script>
+</body>
+</html>

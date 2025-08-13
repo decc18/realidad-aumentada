@@ -42,6 +42,7 @@
         <button class="close-menu">×</button>
         <ul class="menu-items">
             <li><a href="#" onclick="showMarkerAR()">AR con Marcador</a></li>
+            <li><a href="#" onclick="showProductAR()">Reconocimiento de Productos</a></li>
             <li><a href="#" onclick="showMarkerlessAR()">AR sin Marcador</a></li>
             <li><a href="#" onclick="showLocationAR()">AR por Ubicación</a></li>
             <li><a href="#" onclick="showAbout()">Acerca de</a></li>
@@ -60,6 +61,11 @@
                         <div class="card-icon">📱</div>
                         <h3>AR con Marcador</h3>
                         <p>Escanea un marcador para ver contenido 3D</p>
+                    </div>
+                    <div class="card" onclick="showProductAR()">
+                        <div class="card-icon">🚿</div>
+                        <h3>Reconocimiento de Productos</h3>
+                        <p>Escanea productos para ver información detallada</p>
                     </div>
                     <div class="card" onclick="showMarkerlessAR()">
                         <div class="card-icon">🌍</div>
@@ -117,6 +123,26 @@
             </div>
         </div>
 
+        <!-- Nueva Pantalla AR para Reconocimiento de Productos -->
+        <div id="product-ar-screen" class="screen">
+            <div class="ar-container">
+                <div class="ar-instructions">
+                    <p>Apunta tu cámara hacia la ducha para ver información detallada</p>
+                    <div class="product-hints">
+                        <span class="hint-badge">🚿 Ducha Premium</span>
+                        <span class="hint-badge">💡 Información en Tiempo Real</span>
+                        <span class="hint-badge">🛒 Compra Directa</span>
+                    </div>
+                </div>
+                <div id="product-ar-scene"></div>
+            </div>
+            <div class="ar-controls">
+                <button onclick="hideAllScreens(); showScreen('home-screen')" class="back-btn">Volver</button>
+                <button onclick="takeScreenshot()" class="screenshot-btn">📸</button>
+                <button onclick="toggleHints()" class="hints-btn">💡</button>
+            </div>
+        </div>
+
         <!-- Pantalla Acerca de -->
         <div id="about-screen" class="screen">
             <div class="about-content">
@@ -152,6 +178,7 @@
     <script src="js/ar-marker.js"></script>
     <script src="js/ar-markerless.js"></script>
     <script src="js/ar-location.js"></script>
+    <script src="js/ar-product-recognition.js"></script>
     
     <!-- Service Worker Registration -->
     <script>

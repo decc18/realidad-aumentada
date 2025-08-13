@@ -6,6 +6,7 @@ Una aplicación Progressive Web App (PWA) que implementa realidad aumentada dire
 
 - **Progressive Web App**: Funciona offline, es instalable y se actualiza automáticamente
 - **Realidad Aumentada con Marcador**: Usa AR.js para detectar marcadores y mostrar contenido 3D
+- **Reconocimiento de Productos**: Escanea productos reales y muestra información detallada en tiempo real
 - **Realidad Aumentada sin Marcador**: Implementa WebXR para AR sin necesidad de marcadores
 - **Realidad Aumentada por Ubicación**: Muestra puntos de interés basados en GPS
 - **Responsive Design**: Optimizado para dispositivos móviles y desktop
@@ -75,13 +76,32 @@ Abrir el navegador y navegar a:
 3. Apuntar la cámara hacia el marcador
 4. Ver aparecer contenido 3D sobre el marcador
 
-### 2. AR sin Marcador
+### 2. Reconocimiento de Productos
+1. Abrir la sección "Reconocimiento de Productos"
+2. Generar marcadores personalizados usando `generate-product-markers.html`
+3. Colocar el marcador cerca del producto físico (ducha de mano)
+4. Apuntar la cámara hacia el marcador
+5. Ver información detallada del producto:
+   - Precio y descuentos
+   - Características técnicas
+   - Especificaciones
+   - Colores disponibles
+   - Accesorios incluidos
+   - Certificaciones
+6. Interactuar con el producto:
+   - Agregar al carrito
+   - Agregar a lista de deseos
+   - Compartir producto
+   - Ver video demo
+   - Descargar manual
+
+### 3. AR sin Marcador
 1. Permitir acceso a la cámara
 2. Mover el dispositivo para detectar superficies
 3. Tocar "Agregar Objeto" para colocar elementos 3D
 4. Los objetos aparecerán anclados al mundo real
 
-### 3. AR por Ubicación
+### 4. AR por Ubicación
 1. Permitir acceso a la ubicación GPS
 2. Apuntar la cámara hacia el entorno
 3. Ver puntos de interés flotando sobre lugares reales
