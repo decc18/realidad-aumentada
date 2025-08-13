@@ -90,6 +90,9 @@ class ProductARRecognition {
             
             // Crear panel de información
             this.createInfoPanel(container);
+            
+            // Crear indicador de marcador
+            this.createMarkerGuide(container);
 
             // Iniciar render loop
             this.animate();
@@ -139,8 +142,8 @@ class ProductARRecognition {
     }
 
     createScene(container) {
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+        const width = container.clientWidth || window.innerWidth;
+        const height = container.clientHeight || window.innerHeight;
 
         // Escena
         this.scene = new THREE.Scene();
@@ -149,53 +152,51 @@ class ProductARRecognition {
         this.camera = new THREE.Camera();
         this.scene.add(this.camera);
 
-        // Renderer
+        // Renderer con configuración optimizada
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
-            powerPreference: "high-performance"
+            powerPreference: "default"
         });
+        
         this.renderer.setSize(width, height);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.domElement.style.position = 'absolute';
+        this.renderer.domElement.style.top = '0px';
+        this.renderer.domElement.style.left = '0px';
+        this.renderer.domElement.style.zIndex = '1';
         
         container.appendChild(this.renderer.domElement);
 
-        // Luces
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        // Luces más simples
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         this.scene.add(ambientLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 10, 10);
-        directionalLight.castShadow = true;
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        directionalLight.position.set(5, 5, 5);
         this.scene.add(directionalLight);
     }
 
     async setupAR() {
         return new Promise((resolve, reject) => {
-            // AR Toolkit Source (video)
+            // AR Toolkit Source (video) - Configuración simplificada
             this.arToolkitSource = new THREEx.ArToolkitSource({
-                sourceType: 'webcam',
-                sourceWidth: 1280,
-                sourceHeight: 720,
-                displayWidth: window.innerWidth,
-                displayHeight: window.innerHeight
+                sourceType: 'webcam'
             });
 
             this.arToolkitSource.init(() => {
-                // Redimensionar
-                this.onResize();
+                // Redimensionar para adaptarse al viewport
+                setTimeout(() => {
+                    this.onResize();
+                }, 2000);
                 
-                // AR Toolkit Context
+                // AR Toolkit Context - Configuración optimizada
                 this.arToolkitContext = new THREEx.ArToolkitContext({
                     cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/data/data/camera_para.dat',
-                    detectionMode: 'mono_and_matrix',
-                    matrixCodeType: '3x3',
-                    maxDetectionRate: 30,
-                    canvasWidth: 80 * 3,
-                    canvasHeight: 60 * 3,
+                    detectionMode: 'mono',
+                    maxDetectionRate: 60,
+                    canvasWidth: 640,
+                    canvasHeight: 480,
                 });
 
                 this.arToolkitContext.init(() => {
@@ -565,12 +566,33 @@ class ProductARRecognition {
     }
 
     onResize() {
-        if (this.arToolkitSource) {
-            this.arToolkitSource.onResizeElement();
-            this.arToolkitSource.copyElementSizeTo(this.renderer.domElement);
-            
-            if (this.arToolkitContext && this.arToolkitContext.arController !== null) {
-                this.arToolkitSource.copyElementSizeTo(this.arToolkitContext.arController.canvas);
+        if (this.arToolkitSource && this.renderer) {
+            try {
+                // Redimensionar el video source
+                this.arToolkitSource.onResizeElement();
+                
+                // Copiar dimensiones al renderer
+                this.arToolkitSource.copyElementSizeTo(this.renderer.domElement);
+                
+                // Actualizar el canvas del AR context si está disponible
+                if (this.arToolkitContext && this.arToolkitContext.arController) {
+                    this.arToolkitSource.copyElementSizeTo(this.arToolkitContext.arController.canvas);
+                }
+                
+                // Asegurar que el video esté visible
+                const video = this.arToolkitSource.domElement;
+                if (video) {
+                    video.style.position = 'absolute';
+                    video.style.top = '0px';
+                    video.style.left = '0px';
+                    video.style.zIndex = '0';
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectFit = 'cover';
+                }
+                
+            } catch (error) {
+                console.warn('Error en onResize:', error);
             }
         }
     }
@@ -584,6 +606,24 @@ class ProductARRecognition {
                 <button onclick="initProductAR()">Reintentar</button>
             </div>
         `;
+    }
+
+    createMarkerGuide(container) {
+        const guide = document.createElement('div');
+        guide.className = 'ar-marker-guide';
+        guide.innerHTML = `
+            <div class="marker-guide-content">
+                <h3>📷 Apunta hacia el marcador Hiro</h3>
+                <p>Escanea el código QR negro y blanco para ver el producto en AR</p>
+                <div class="marker-preview">
+                    <img src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg" alt="Marcador Hiro" style="width: 100px; height: 100px; border: 2px solid white; border-radius: 8px;">
+                </div>
+                <button onclick="window.open('generate-product-markers.html', '_blank')" style="margin-top: 15px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                    Generar Marcadores
+                </button>
+            </div>
+        `;
+        container.appendChild(guide);
     }
 
     destroy() {
