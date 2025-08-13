@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR PWA - Realidad Aumentada</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2196F3">
+    <meta name="description" content="Aplicación de Realidad Aumentada con PWA">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/favicon.ico">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- AR.js y Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/three.js/build/ar-threex.js"></script>
+</head>
+<body>
+    <!-- Pantalla de carga -->
+    <div id="loading-screen">
+        <div class="loader">
+            <div class="spinner"></div>
+            <p>Cargando Realidad Aumentada...</p>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">AR PWA</h1>
+            <button id="menu-toggle" class="menu-toggle">☰</button>
+        </div>
+    </nav>
+
+    <!-- Menú lateral -->
+    <div id="side-menu" class="side-menu">
+        <button class="close-menu">×</button>
+        <ul class="menu-items">
+            <li><a href="#" onclick="showMarkerAR()">AR con Marcador</a></li>
+            <li><a href="#" onclick="showMarkerlessAR()">AR sin Marcador</a></li>
+            <li><a href="#" onclick="showLocationAR()">AR por Ubicación</a></li>
+            <li><a href="#" onclick="showAbout()">Acerca de</a></li>
+        </ul>
+    </div>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <!-- Pantalla de inicio -->
+        <div id="home-screen" class="screen active">
+            <div class="hero">
+                <h2>Bienvenido a AR PWA</h2>
+                <p>Experimenta la realidad aumentada directamente en tu navegador</p>
+                <div class="feature-cards">
+                    <div class="card" onclick="showMarkerAR()">
+                        <div class="card-icon">📱</div>
+                        <h3>AR con Marcador</h3>
+                        <p>Escanea un marcador para ver contenido 3D</p>
+                    </div>
+                    <div class="card" onclick="showMarkerlessAR()">
+                        <div class="card-icon">🌍</div>
+                        <h3>AR sin Marcador</h3>
+                        <p>Coloca objetos 3D en el mundo real</p>
+                    </div>
+                    <div class="card" onclick="showLocationAR()">
+                        <div class="card-icon">📍</div>
+                        <h3>AR por Ubicación</h3>
+                        <p>Contenido basado en tu ubicación</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla AR con Marcador -->
+        <div id="marker-ar-screen" class="screen">
+            <div class="ar-container">
+                <div class="ar-instructions">
+                    <p>Apunta tu cámara hacia el marcador AR</p>
+                    <button onclick="downloadMarker()" class="download-btn">Descargar Marcador</button>
+                </div>
+                <div id="marker-ar-scene"></div>
+            </div>
+            <div class="ar-controls">
+                <button onclick="hideAllScreens(); showScreen('home-screen')" class="back-btn">Volver</button>
+                <button id="screenshot-btn" onclick="takeScreenshot()">📸</button>
+            </div>
+        </div>
+
+        <!-- Pantalla AR sin Marcador -->
+        <div id="markerless-ar-screen" class="screen">
+            <div class="ar-container">
+                <div class="ar-instructions">
+                    <p>Mueve tu dispositivo para detectar superficies</p>
+                </div>
+                <div id="markerless-ar-scene"></div>
+            </div>
+            <div class="ar-controls">
+                <button onclick="hideAllScreens(); showScreen('home-screen')" class="back-btn">Volver</button>
+                <button onclick="addObject()" class="add-btn">Agregar Objeto</button>
+            </div>
+        </div>
+
+        <!-- Pantalla AR por Ubicación -->
+        <div id="location-ar-screen" class="screen">
+            <div class="ar-container">
+                <div class="ar-instructions">
+                    <p>Buscando ubicaciones cercanas...</p>
+                </div>
+                <div id="location-ar-scene"></div>
+            </div>
+            <div class="ar-controls">
+                <button onclick="hideAllScreens(); showScreen('home-screen')" class="back-btn">Volver</button>
+            </div>
+        </div>
+
+        <!-- Pantalla Acerca de -->
+        <div id="about-screen" class="screen">
+            <div class="about-content">
+                <h2>Acerca de AR PWA</h2>
+                <p>Esta es una aplicación de realidad aumentada desarrollada como PWA (Progressive Web App).</p>
+                <h3>Características:</h3>
+                <ul>
+                    <li>✅ Funciona offline</li>
+                    <li>✅ Instalable en dispositivos</li>
+                    <li>✅ Realidad aumentada con WebXR</li>
+                    <li>✅ Compatible con dispositivos móviles</li>
+                    <li>✅ Sin necesidad de descargar de stores</li>
+                </ul>
+                <div class="tech-stack">
+                    <h3>Tecnologías utilizadas:</h3>
+                    <div class="tech-badges">
+                        <span class="badge">PWA</span>
+                        <span class="badge">WebXR</span>
+                        <span class="badge">AR.js</span>
+                        <span class="badge">Three.js</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="hideAllScreens(); showScreen('home-screen')" class="back-btn">Volver</button>
+        </div>
+    </main>
+
+    <!-- Notificaciones -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/ar-marker.js"></script>
+    <script src="js/ar-markerless.js"></script>
+    <script src="js/ar-location.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => {
+                        console.log('SW registrado exitosamente: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW falló el registro: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "ar-pwa",
+  "version": "1.0.0",
+  "description": "Aplicación de Realidad Aumentada con PWA",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server . -p 8080 -c-1",
+    "build": "echo 'No build step required for this static app'",
+    "serve": "python -m http.server 8080",
+    "dev": "live-server --port=8080 --no-browser"
+  },
+  "keywords": [
+    "pwa",
+    "ar",
+    "realidad-aumentada",
+    "webxr",
+    "three.js",
+    "ar.js"
+  ],
+  "author": "AR PWA Developer",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/ar-pwa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/ar-pwa/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/ar-pwa#readme"
+}

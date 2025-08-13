@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generador de Íconos PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #1976D2;
+        }
+        
+        canvas {
+            border: 2px solid #ddd;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .icon-item {
+            text-align: center;
+        }
+        
+        .icon-item canvas {
+            display: block;
+            margin: 0 auto 10px;
+        }
+        
+        .download-all {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Generador de Íconos PWA</h1>
+        <p>Esta herramienta genera todos los íconos necesarios para tu PWA de Realidad Aumentada</p>
+        
+        <button onclick="generateAllIcons()">Generar Todos los Íconos</button>
+        
+        <div class="download-all">
+            <h3>📥 Instrucciones</h3>
+            <ol>
+                <li>Haz clic en "Generar Todos los Íconos"</li>
+                <li>Haz clic derecho en cada ícono → "Guardar imagen como..."</li>
+                <li>Guarda cada ícono con su nombre correspondiente en la carpeta <code>/icons/</code></li>
+                <li>Los íconos se generan con el diseño AR y los tamaños correctos</li>
+            </ol>
+        </div>
+        
+        <div class="icons-grid" id="iconsGrid"></div>
+    </div>
+
+    <script>
+        const iconSizes = [
+            { size: 72, name: 'icon-72x72.png' },
+            { size: 96, name: 'icon-96x96.png' },
+            { size: 128, name: 'icon-128x128.png' },
+            { size: 144, name: 'icon-144x144.png' },
+            { size: 152, name: 'icon-152x152.png' },
+            { size: 192, name: 'icon-192x192.png' },
+            { size: 384, name: 'icon-384x384.png' },
+            { size: 512, name: 'icon-512x512.png' }
+        ];
+
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            // Fondo gradiente
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#2196F3');
+            gradient.addColorStop(0.5, '#21CBF3');
+            gradient.addColorStop(1, '#2196F3');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+
+            // Borde redondeado (simulado)
+            const borderRadius = size * 0.1;
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, borderRadius);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Símbolo AR en el centro
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Dibujar "AR" o un símbolo según el tamaño
+            if (size >= 128) {
+                ctx.fillText('AR', size / 2, size / 2);
+                
+                // Agregar elementos gráficos para AR
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = size * 0.02;
+                
+                // Esquinas de marco AR
+                const cornerSize = size * 0.15;
+                const margin = size * 0.1;
+                
+                // Esquina superior izquierda
+                ctx.beginPath();
+                ctx.moveTo(margin, margin + cornerSize);
+                ctx.lineTo(margin, margin);
+                ctx.lineTo(margin + cornerSize, margin);
+                ctx.stroke();
+                
+                // Esquina superior derecha
+                ctx.beginPath();
+                ctx.moveTo(size - margin - cornerSize, margin);
+                ctx.lineTo(size - margin, margin);
+                ctx.lineTo(size - margin, margin + cornerSize);
+                ctx.stroke();
+                
+                // Esquina inferior izquierda
+                ctx.beginPath();
+                ctx.moveTo(margin, size - margin - cornerSize);
+                ctx.lineTo(margin, size - margin);
+                ctx.lineTo(margin + cornerSize, size - margin);
+                ctx.stroke();
+                
+                // Esquina inferior derecha
+                ctx.beginPath();
+                ctx.moveTo(size - margin - cornerSize, size - margin);
+                ctx.lineTo(size - margin, size - margin);
+                ctx.lineTo(size - margin, size - margin - cornerSize);
+                ctx.stroke();
+                
+            } else if (size >= 96) {
+                // Para tamaños medianos, solo "AR"
+                ctx.fillText('AR', size / 2, size / 2);
+            } else {
+                // Para tamaños pequeños, solo un círculo con punto
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size * 0.3, 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = size * 0.04;
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size * 0.08, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            return canvas;
+        }
+
+        function generateAllIcons() {
+            const iconsGrid = document.getElementById('iconsGrid');
+            iconsGrid.innerHTML = '';
+
+            iconSizes.forEach(iconConfig => {
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+
+                const canvas = createIcon(iconConfig.size);
+                canvas.title = iconConfig.name;
+                canvas.style.cursor = 'pointer';
+                
+                // Evento para descargar al hacer clic
+                canvas.addEventListener('click', () => {
+                    downloadCanvas(canvas, iconConfig.name);
+                });
+
+                const label = document.createElement('div');
+                label.textContent = `${iconConfig.size}x${iconConfig.size}`;
+                label.style.fontSize = '12px';
+                label.style.color = '#666';
+                label.style.marginTop = '5px';
+
+                const filename = document.createElement('div');
+                filename.textContent = iconConfig.name;
+                filename.style.fontSize = '10px';
+                filename.style.color = '#999';
+                filename.style.marginTop = '2px';
+
+                iconItem.appendChild(canvas);
+                iconItem.appendChild(label);
+                iconItem.appendChild(filename);
+                iconsGrid.appendChild(iconItem);
+            });
+
+            // Generar favicon
+            generateFavicon();
+
+            // Mostrar mensaje de éxito
+            showSuccessMessage();
+        }
+
+        function generateFavicon() {
+            const canvas = createIcon(32);
+            canvas.title = 'favicon.ico';
+            canvas.style.cursor = 'pointer';
+            
+            canvas.addEventListener('click', () => {
+                downloadCanvas(canvas, 'favicon.ico');
+            });
+
+            const iconItem = document.createElement('div');
+            iconItem.className = 'icon-item';
+
+            const label = document.createElement('div');
+            label.textContent = '32x32 (Favicon)';
+            label.style.fontSize = '12px';
+            label.style.color = '#666';
+            label.style.marginTop = '5px';
+
+            const filename = document.createElement('div');
+            filename.textContent = 'favicon.ico';
+            filename.style.fontSize = '10px';
+            filename.style.color = '#999';
+            filename.style.marginTop = '2px';
+
+            iconItem.appendChild(canvas);
+            iconItem.appendChild(label);
+            iconItem.appendChild(filename);
+            
+            document.getElementById('iconsGrid').appendChild(iconItem);
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function showSuccessMessage() {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 5px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 1000;
+                font-weight: bold;
+            `;
+            message.textContent = '✅ ¡Íconos generados! Haz clic en cada uno para descargar';
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 5000);
+        }
+
+        // Polyfill para roundRect si no existe
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>
